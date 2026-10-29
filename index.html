@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>السجل الطبي الإلكتروني للمريض (EMR) - جامعة الفيوم</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        medical: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .glass-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .badge-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff !important; }
+            .print-only { display: block !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between">
+
+    <!-- Header & Navigation -->
+    <header class="bg-slate-900 text-white shadow-xl border-b border-slate-800 sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- University & Project Brand -->
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <div class="w-12 h-12 bg-medical-500 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-sky-500/30">
+                        <i class="fa-solid font-bold fa-heart-pulse"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded font-bold">جامعة الفيوم</span>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">تكنولوجيا التعليم الرقمي</span>
+                        </div>
+                        <h1 class="text-xl font-black text-white tracking-tight">السجل الطبي الإلكتروني <span class="text-sky-400">(EMR)</span></h1>
+                    </div>
+                </div>
+
+                <!-- Control Bar & Role Switcher -->
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="bg-slate-800 p-1 rounded-xl flex items-center border border-slate-700">
+                        <button onclick="switchRole('patient')" id="role-patient-btn" class="px-4 py-2 rounded-lg text-sm font-bold transition-all bg-sky-500 text-white shadow-md">
+                            <i class="fa-solid fa-user-gear ml-1"></i> وضع المريض
+                        </button>
+                        <button onclick="switchRole('doctor')" id="role-doctor-btn" class="px-4 py-2 rounded-lg text-sm font-bold transition-all text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-user-doctor ml-1"></i> وضع الطبيب المعالج
+                        </button>
+                    </div>
+
+                    <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl text-sm font-bold border border-slate-700 transition flex items-center gap-1">
+                        <i class="fa-solid fa-print text-sky-400"></i> طباعة التقرير
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+        <!-- Role Alert Banner -->
+        <div id="role-banner" class="mb-6 p-4 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-between no-print">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center font-bold text-lg">
+                    <i class="fa-solid fa-circle-info"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-sky-900 text-base" id="banner-title">أهلاً بك في ملفك الطبي الشخصي</h2>
+                    <p class="text-sm text-sky-700" id="banner-desc">يمكنك استعراض تاريخك المرضي، الفحوصات، وإدارة صلاحيات وصول الطبيب بكل سهولة.</p>
+                </div>
+            </div>
+            <button onclick="openAccessModal()" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md transition flex items-center gap-2">
+                <i class="fa-solid fa-key"></i> إدارة صلاحيات الأطباء
+            </button>
+        </div>
+
+        <!-- Quick Live Search & Action Bar -->
+        <div class="mb-8 glass-card p-4 rounded-2xl shadow-sm border border-slate-200 no-print">
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <!-- Search Input -->
+                <div class="relative w-full md:w-1/2">
+                    <i class="fa-solid fa-magnifying-glass absolute right-4 top-3.5 text-slate-400"></i>
+                    <input type="text" id="medical-search" onkeyup="filterMedicalData()" placeholder="ابحث في السجل الطبي (دواء، تحليل، أشعة، تشخيص، طبيب)..." class="w-full pl-4 pr-11 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm bg-slate-50">
+                </div>
+
+                <!-- Category Quick Filters -->
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <button onclick="filterCategory('all')" class="filter-btn active bg-sky-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition">الكل</button>
+                    <button onclick="filterCategory('meds')" class="filter-btn bg-slate-200 text-slate-700 hover:bg-slate-300 px-3.5 py-1.5 rounded-lg text-xs font-bold transition">الأدوية</button>
+                    <button onclick="filterCategory('tests')" class="filter-btn bg-slate-200 text-slate-700 hover:bg-slate-300 px-3.5 py-1.5 rounded-lg text-xs font-bold transition">التحاليل والأشعة</button>
+                    <button onclick="filterCategory('visits')" class="filter-btn bg-slate-200 text-slate-700 hover:bg-slate-300 px-3.5 py-1.5 rounded-lg text-xs font-bold transition">الزيارات الطبية</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Header Profile Card -->
+        <div class="glass-card rounded-3xl p-6 shadow-md border border-slate-200 mb-8 bg-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-3 h-full bg-sky-500"></div>
+            
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+                <!-- Profile Image -->
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300" alt="معتز سيد هاشم" class="w-28 h-28 rounded-2xl object-cover border-4 border-slate-100 shadow-md">
+                    <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full border-2 border-white shadow">
+                        <i class="fa-solid fa-check"></i> سجل نشط
+                    </span>
+                </div>
+
+                <!-- Details & Primary Stats -->
+                <div class="flex-1 text-center md:text-right">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-slate-900">أ. معتز سيد هاشم</h2>
+                            <p class="text-sm text-slate-500 font-semibold">رقم السجل الطبي: <span class="font-mono text-sky-600 font-bold">#EMR-2026-8892</span></p>
+                        </div>
+                        
+                        <!-- Emergency Allergy Badge -->
+                        <div class="bg-amber-50 border border-amber-200 p-3 rounded-2xl flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold badge-pulse">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs font-bold text-amber-800">حساسية خطيرة مسجلة</div>
+                                <div class="text-sm font-extrabold text-amber-900">البنسلين (Penicillin) + المكسرات</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Bio Stats Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-100">
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-bold">العمر / السن</span>
+                            <span class="text-sm font-bold text-slate-800">38 سنة (1988/04/12)</span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-bold">فصيلة الدم</span>
+                            <span class="text-sm font-bold text-rose-600">O+ (موجب)</span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-bold">الضغط والسكر</span>
+                            <span class="text-sm font-bold text-slate-800">120/80 - منتظم</span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-bold">رقم الهاتف</span>
+                            <span class="text-sm font-bold text-slate-800 font-mono">01098765432</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid Dashboard Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Right Column: Medical History & Prescriptions (2 Cols) -->
+            <div class="lg:col-span-2 space-y-8">
+
+                <!-- Current & Past Diagnoses -->
+                <div class="glass-card rounded-2xl p-6 shadow-sm border border-slate-200 bg-white searchable-card" data-category="visits">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                        <h3 class="font-black text-lg text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-stethoscope text-sky-500"></i> التشخيصات والأمراض السابقة والحالية
+                        </h3>
+                        <span class="bg-sky-100 text-sky-700 text-xs font-bold px-2.5 py-1 rounded-full">3 حالات مسجلة</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <!-- Item 1 -->
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start justify-between">
+                            <div>
+                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded ml-2">متابعة حالية</span>
+                                <h4 class="font-bold text-slate-900 text-base inline">ارتفاع ضغط الدم الخفيف (Primary Hypertension)</h4>
+                                <p class="text-xs text-slate-500 mt-1">تم التشخيص بواسطة: د. أحمد محمود (استشاري القلب) - تاريخ: 2025/11/10</p>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400">منذ 11 شهر</span>
+                        </div>
+                        <!-- Item 2 -->
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start justify-between">
+                            <div>
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded ml-2">مزمن</span>
+                                <h4 class="font-bold text-slate-900 text-base inline">حساسية الجيوب الأنفية الموسمية</h4>
+                                <p class="text-xs text-slate-500 mt-1">تم التشخيص بواسطة: د. سامح فاروق (أنف وأذن وحنجرة) - تاريخ: 2024/03/15</p>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400">منذ سنتين</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Medications & Prescriptions -->
+                <div class="glass-card rounded-2xl p-6 shadow-sm border border-slate-200 bg-white searchable-card" data-category="meds">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                        <h3 class="font-black text-lg text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-pills text-emerald-500"></i> الأدوية الحالية والوصفات الطبية
+                        </h3>
+                        <button class="text-xs font-bold text-sky-600 hover:underline">+ إضافة دواء جديد</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Med 1 -->
+                        <div class="p-4 rounded-xl bg-emerald-50/50 border border-emerald-100 relative">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-capsules"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">كونكور (Concor 5mg)</h4>
+                                    <span class="text-xs text-emerald-700 font-semibold">قرص واحد يومياً صباحاً</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500">السبب: تنظيم ضغط الدم | تاريخ البدء: 2025/11/12</p>
+                        </div>
+                        <!-- Med 2 -->
+                        <div class="p-4 rounded-xl bg-sky-50/50 border border-sky-100 relative">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-tablets"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">تلفاست (Telfast 180mg)</h4>
+                                    <span class="text-xs text-sky-700 font-semibold">قرص عند اللزوم</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500">السبب: علاج حساسية الجيوب الأنفية</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical Scans, X-Rays & Lab Results (Interactive Media Hub) -->
+                <div class="glass-card rounded-2xl p-6 shadow-sm border border-slate-200 bg-white searchable-card" data-category="tests">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                        <div>
+                            <h3 class="font-black text-lg text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-x-ray text-purple-500"></i> الأشعات والتحاليل والتقارير المرفوقة
+                            </h3>
+                            <p class="text-xs text-slate-500">معاينة صور الأشعة وملفات الـ PDF المحفوظة في السجل</p>
+                        </div>
+                        <button onclick="triggerFileUpload()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> رفع تقرير جديد
+                        </button>
+                        <input type="file" id="file-input" class="hidden" onchange="handleFileUploaded(event)">
+                    </div>
+
+                    <!-- Scans & Reports Gallery Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="reports-grid">
+                        <!-- Report 1: Chest X-Ray -->
+                        <div class="border border-slate-200 rounded-2xl overflow-hidden hover:shadow-md transition bg-slate-50">
+                            <div class="relative h-36 bg-slate-800 overflow-hidden group">
+                                <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=500" alt="أشعة سينية على الصدر" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                                    <button onclick="viewMedia('https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800', 'أشعة سينية على الصدر (Chest X-Ray)')" class="bg-white/90 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow">
+                                        <i class="fa-solid fa-eye"></i> معاينة المكبرة
+                                    </button>
+                                </div>
+                                <span class="absolute top-2 right-2 bg-purple-600 text-white text-xs font-bold px-2 py-0.5 rounded">X-Ray أشعة</span>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-bold text-slate-900 text-sm">أشعة سينية عادية على الصدر</h4>
+                                <div class="flex items-center justify-between text-xs text-slate-500 mt-2">
+                                    <span>مركز النيل للأشعة</span>
+                                    <span>2026/01/15</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Report 2: Blood Lab Results -->
+                        <div class="border border-slate-200 rounded-2xl overflow-hidden hover:shadow-md transition bg-slate-50">
+                            <div class="relative h-36 bg-slate-800 overflow-hidden group">
+                                <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=500" alt="تحليل دم شامل" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                                    <button onclick="viewMedia('https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800', 'صورة دم كاملة CBC + كوليسترول')" class="bg-white/90 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow">
+                                        <i class="fa-solid fa-file-pdf"></i> فتح Tqreer PDF
+                                    </button>
+                                </div>
+                                <span class="absolute top-2 right-2 bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">تحليل دم CBC</span>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-bold text-slate-900 text-sm">تحليل صورة دم كاملة + كوليسترول</h4>
+                                <div class="flex items-center justify-between text-xs text-slate-500 mt-2">
+                                    <span>معامل المختبر - الفيوم</span>
+                                    <span>2026/02/02</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Past Doctor Visits Timeline -->
+                <div class="glass-card rounded-2xl p-6 shadow-sm border border-slate-200 bg-white searchable-card" data-category="visits">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                        <h3 class="font-black text-lg text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-amber-500"></i> سجل الكشوفات والزيارات السابقة
+                        </h3>
+                    </div>
+
+                    <div class="relative border-r-2 border-slate-200 mr-3 space-y-6">
+                        <!-- Visit 1 -->
+                        <div class="relative pr-6">
+                            <div class="absolute -right-2 top-0 w-4 h-4 rounded-full bg-sky-500 border-2 border-white shadow"></div>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h4 class="font-bold text-slate-900 text-sm">عيادة الباطنة والقلب - د. أحمد محمود</h4>
+                                    <span class="text-xs font-mono text-slate-400">2026/02/10</span>
+                                </div>
+                                <p class="text-xs text-slate-600 font-semibold mb-2">السبب: استشارة دورية لمتابعة الضغط والاطمئنان على نتائج الفحوصات.</p>
+                                <div class="text-xs bg-white p-2 rounded border border-slate-200 text-slate-500">
+                                    <strong>توصيات الطبيب:</strong> الاستمرار على دواء كونكور 5mg والتقليل من الملح في الطعام.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Visit 2 -->
+                        <div class="relative pr-6">
+                            <div class="absolute -right-2 top-0 w-4 h-4 rounded-full bg-slate-300 border-2 border-white"></div>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h4 class="font-bold text-slate-900 text-sm">مستشفى الفيوم العام - قسم الطوارئ</h4>
+                                    <span class="text-xs font-mono text-slate-400">2025/08/04</span>
+                                </div>
+                                <p class="text-xs text-slate-600 font-semibold mb-2">السبب: أزمة حساسية موسمية حادة وضيق تنفس خفيف.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Left Column: Access Control & Academic Team (1 Col) -->
+            <div class="space-y-8">
+
+                <!-- Doctor Access Approval Card (Key Feature) -->
+                <div class="glass-card rounded-2xl p-6 shadow-md border border-sky-200 bg-gradient-to-b from-sky-50/50 to-white relative overflow-hidden">
+                    <div class="flex items-center gap-2 text-sky-900 font-black text-base mb-3">
+                        <i class="fa-solid fa-shield-halved text-sky-600 text-xl"></i>
+                        <span>صلاحيات اطلاع الطبيب</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        لحماية خصوصيتك، لا يمكن لأي طبيب جديد الاطلاع على سجلاتك السابقة إلا بعد توليد كود الموافقة المؤقت.
+                    </p>
+
+                    <!-- QR Code & Access Code Generation -->
+                    <div class="bg-white p-4 rounded-xl border border-sky-100 text-center shadow-sm">
+                        <span class="text-xs text-slate-400 block mb-1">كود الوصول المؤقت (صالح لـ 15 دقيقة)</span>
+                        <div class="text-2xl font-mono font-black text-sky-600 tracking-wider mb-3">884-109</div>
+                        
+                        <!-- QR Code Mockup -->
+                        <div class="w-32 h-32 mx-auto bg-slate-900 p-2 rounded-xl mb-3 flex items-center justify-center">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=EMR-MOTAZ-884109" alt="QR Code Access" class="w-full h-full rounded">
+                        </div>
+                        <button onclick="copyAccessCode()" class="w-full bg-sky-100 hover:bg-sky-200 text-sky-800 text-xs font-bold py-2 rounded-lg transition">
+                            <i class="fa-solid fa-copy"></i> نسخ كود الوصول للطبيب
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Academic Team & Project Info (Fayoum University Banner Integration) -->
+                <div class="glass-card rounded-2xl p-6 shadow-sm border border-slate-200 bg-white">
+                    <div class="text-center border-b border-slate-100 pb-4 mb-4">
+                        <span class="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full mb-2 inline-block">دفعة 2026/2027</span>
+                        <h3 class="font-black text-base text-slate-900">مشروع السجل الطبي الإلكتروني</h3>
+                        <p class="text-xs text-sky-600 font-bold mt-1">إشراف: أ.م.د / شيماء يوسف</p>
+                    </div>
+
+                    <!-- Team Leader Badge -->
+                    <div class="bg-slate-900 text-white p-3 rounded-xl mb-4 flex items-center gap-3 shadow-md">
+                        <div class="w-10 h-10 rounded-lg bg-sky-500 text-white flex items-center justify-center font-bold text-lg">
+                            <i class="fa-solid fa-user-ninja"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-sky-400 font-bold uppercase tracking-wider block">قائد الفريق</span>
+                            <h4 class="font-extrabold text-sm text-white">مصطفى احمد عبد الحفيظ</h4>
+                        </div>
+                    </div>
+
+                    <!-- Full 15 Team Members Accordion/List -->
+                    <div class="space-y-1.5 text-xs">
+                        <div class="font-bold text-slate-400 mb-2">أعضاء الفريق (15 طالب ومبدع):</div>
+                        <div class="p-2 rounded bg-slate-50 font-bold text-slate-700">1. مصطفى احمد عبد الحفيظ </div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">2. مصطفى أحمد عويس ابراهيم</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">3. حمادة ربيع عبد الغنى حجاج</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">4. عاصم احمد صلاح الدين حسن</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">5. محمد رمضان عبد الفتاح</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">6. اسلام مصطفى حسن على نصار</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">7. رمضان محمد يوسف</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">8. محمد سمير عمر عبد السلام</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">9. فاطمه على عيد منجود</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">10. غادة خليفة نصر</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">11. ساميه اسماعيل ابراهيم حسن</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">12. زينب محمد شعبان عبد اللاه</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">13. مها ممدوح ميزار عثمان</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">14. مريم شعبان سالم مصطفى</div>
+                        <div class="p-2 rounded bg-slate-50 font-medium text-slate-700">15. ياسمين سيد مصطفي درويش</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 text-center text-xs no-print mt-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-bold text-slate-300">جميع الحقوق محفوظة © 2026/2027 - جامعة الفيوم - تكنولوجيا التعليم الرقمي</p>
+            <p class="mt-1 text-slate-500">مشروع السجل الطبي الإلكتروني للمريض (EMR) | تحت إشراف أ.م.د / شيماء يوسف</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Media Viewer Modal -->
+    <div id="media-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl relative">
+            <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+                <h3 id="modal-title" class="font-bold text-base">معاينة الملف الطبي</h3>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-bold">✕</button>
+            </div>
+            <div class="p-4 text-center">
+                <img id="modal-img" src="" alt="المعاينة" class="max-h-[70vh] mx-auto rounded-xl border border-slate-200">
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Interactions -->
+    <script>
+        // Role Switcher Logic
+        function switchRole(role) {
+            const patientBtn = document.getElementById('role-patient-btn');
+            const doctorBtn = document.getElementById('role-doctor-btn');
+            const bannerTitle = document.getElementById('banner-title');
+            const bannerDesc = document.getElementById('banner-desc');
+
+            if(role === 'doctor') {
+                doctorBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all bg-emerald-600 text-white shadow-md';
+                patientBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all text-slate-400 hover:text-white';
+                bannerTitle.innerText = 'وضع الطبيب المعالج (تم التحقق من الصلاحيات)';
+                bannerDesc.innerText = 'أهلاً يا دكتور. يمكنك الآن إدخال التشخيصات الجديدة، إضافة الروشتات، والاطلاع على الفحوصات المرفقة.';
+            } else {
+                patientBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all bg-sky-500 text-white shadow-md';
+                doctorBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all text-slate-400 hover:text-white';
+                bannerTitle.innerText = 'أهلاً بك في ملفك الطبي الشخصي';
+                bannerDesc.innerText = 'يمكنك استعراض تاريخك المرضي، الفحوصات، وإدارة صلاحيات وصول الطبيب بكل سهولة.';
+            }
+        }
+
+        // Live Filter Medical Data
+        function filterMedicalData() {
+            const query = document.getElementById('medical-search').value.toLowerCase();
+            const cards = document.querySelectorAll('.searchable-card');
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                if(text.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Filter Category Buttons
+        function filterCategory(cat) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.className = 'filter-btn bg-slate-200 text-slate-700 hover:bg-slate-300 px-3.5 py-1.5 rounded-lg text-xs font-bold transition');
+
+            event.target.className = 'filter-btn active bg-sky-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition';
+
+            const cards = document.querySelectorAll('.searchable-card');
+            cards.forEach(card => {
+                if(cat === 'all' || card.getAttribute('data-category') === cat) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // File Upload Trigger Simulation
+        function triggerFileUpload() {
+            document.getElementById('file-input').click();
+        }
+
+        function handleFileUploaded(event) {
+            const file = event.target.files[0];
+            if(file) {
+                alert('تم رفع الملف بنجاح وإضافته إلى السجل الطبي للمريض معتز سيد هاشم: ' + file.name);
+            }
+        }
+
+        // Modal View Controls
+        function viewMedia(src, title) {
+            document.getElementById('modal-img').src = src;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('media-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('media-modal').classList.add('hidden');
+        }
+
+        function copyAccessCode() {
+            navigator.clipboard.writeText('884-109');
+            alert('تم نسخ كود الصلاحيات (884-109) بنجاح!');
+        }
+    </script>
+</body>
+</html>

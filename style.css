@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developer Group - أكاديمية تدريب مبيعات وتسويق الهواتف الذكية</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Cairo', sans-serif; background-color: #0b132b; color: #f8fafc; }
+    .glass-card { background: rgba(28, 37, 65, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-card:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-[#0b132b]/90 border-b border-slate-800 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/30">
+          DG
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold text-white tracking-wide">Developer Group</h1>
+          <p class="text-xs text-blue-400 font-semibold">أكاديمية تدريب المبيعات والتسويق</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="https://wa.me/201117417342" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-600/20">
+          <i class="fab fa-whatsapp text-base"></i> واتساب
+        </a>
+        <a href="tel:01117417342" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 shadow-lg shadow-blue-600/20">
+          <i class="fas fa-phone"></i> اتصل بنا
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="py-16 px-4 text-center relative overflow-hidden">
+    <div class="max-w-4xl mx-auto relative z-10">
+      <span class="bg-blue-500/10 text-blue-400 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold border border-blue-500/20 mb-6 inline-block shadow-sm">
+        📱 المتخصصون في إعداد محترفي الهواتف الذكية
+      </span>
+      <h2 class="text-3xl sm:text-5xl font-black text-white mb-6 leading-tight">
+        انطلق في عالم مبيعات وتسويق الهواتف المحمولة مع <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Developer Group</span>
+      </h2>
+      <p class="text-slate-300 text-base sm:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+        نقدم لك أفضل البرامج التدريبية العملية المخصصة لسوق الهواتف الذكية لتطوير مهارات البيع والتواصل وزيادة أرباحك وتأهيلك لسوق العمل بكفاءة.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="#courses" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-blue-600/30 transition">استعرض الدورات</a>
+        <a href="#team" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-8 py-3.5 rounded-xl border border-slate-700 transition">فريق العمل</a>
+        <a href="#quiz" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transition">اختبر معلوماتك</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section id="team" class="py-16 bg-slate-900/60 border-y border-slate-800">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h3 class="text-3xl font-extrabold text-white">الهيكل الإداري وفريق العمل</h3>
+        <p class="text-slate-400 mt-2">نخبة من القيادات والمدربين والمتخصصين في مجال التسويق والمبيعات</p>
+      </div>
+
+      <!-- Leadership -->
+      <div class="mb-12">
+        <h4 class="text-xl font-bold text-blue-400 mb-6 border-r-4 border-blue-500 pr-3">القيادة والإدارة العليا</h4>
+        <div class="grid sm:grid-cols-2 gap-6">
+          <div class="glass-card p-6 rounded-2xl flex items-center gap-4 transition duration-300">
+            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-500/30">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <div>
+              <h5 class="text-lg font-bold text-white">مصطفى أحمد عبد الحفيظ</h5>
+              <p class="text-xs text-blue-400 font-semibold mt-1">قائد ومدير المشروع</p>
+            </div>
+          </div>
+
+          <div class="glass-card p-6 rounded-2xl flex items-center gap-4 transition duration-300">
+            <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-indigo-500/30">
+              <i class="fas fa-handshake"></i>
+            </div>
+            <div>
+              <h5 class="text-lg font-bold text-white">مصطفى أحمد عويس إبراهيم</h5>
+              <p class="text-xs text-indigo-400 font-semibold mt-1">مدير العلاقات العامة</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trainers -->
+      <div class="mb-12">
+        <h4 class="text-xl font-bold text-emerald-400 mb-6 border-r-4 border-emerald-500 pr-3">فريق التدريب والمعرفة</h4>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="glass-card p-5 rounded-2xl flex items-center gap-4 transition duration-300">
+            <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center text-xl font-bold">
+              <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div>
+              <h5 class="text-base font-bold text-white">عاصم أحمد صلاح الدين حسن</h5>
+              <p class="text-xs text-slate-400 mt-0.5">مدرب مبيعات وتسويق</p>
+            </div>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl flex items-center gap-4 transition duration-300">
+            <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center text-xl font-bold">
+              <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div>
+              <h5 class="text-base font-bold text-white">فاطمة علي عيد منجود</h5>
+              <p class="text-xs text-slate-400 mt-0.5">مدرب مبيعات وتسويق</p>
+            </div>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl flex items-center gap-4 transition duration-300">
+            <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center text-xl font-bold">
+              <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div>
+              <h5 class="text-base font-bold text-white">مها
+
